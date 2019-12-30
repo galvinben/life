@@ -1,18 +1,15 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"time"
 )
-
-var speed = flag.Int("speed", 300, "speed to run in milliseconds")
 
 // glider
 // var aliveCells = []Cell{{x: 18, y: 18}, {x: 18, y: 19}, {x: 18, y: 20}, {x: 17, y: 20}, {x: 16, y: 19}}
 
 // random
-var aliveCells = []Cell{{x: 18, y: 18}, {x: 18, y: 19}, {x: 17, y: 18}, {x: 16, y: 18}, {x: 16, y: 19}, {x: 18, y: 20}, {x: 17, y: 18}}
+var aliveCells = []Cell{{x: 18, y: 18}, {x: 18, y: 19}, {x: 17, y: 18}, {x: 16, y: 18}, {x: 16, y: 19}, {x: 18, y: 20}}
 
 type Cell struct {
 	x, y int
@@ -30,20 +27,29 @@ func (c Cell) Alive() bool {
 
 func hasCorrectNeighbours(aliveCells []Cell, cell Cell) bool {
 	neighbours := 0
-	cellsToCheck := []Cell{
-		Cell{x: cell.x - 1, y: cell.y - 1},
-		Cell{x: cell.x - 1, y: cell.y},
-		Cell{x: cell.x - 1, y: cell.y + 1},
-		Cell{x: cell.x + 1, y: cell.y - 1},
-		Cell{x: cell.x + 1, y: cell.y},
-		Cell{x: cell.x + 1, y: cell.y + 1},
-		Cell{x: cell.x, y: cell.y - 1},
-		Cell{x: cell.x, y: cell.y + 1},
+	if cell.x > 0 && (Contains(aliveCells, Cell{x: cell.x - 1, y: cell.y - 1})) {
+		neighbours++
 	}
-	for i := 0; i < len(cellsToCheck); i++ {
-		if Contains(aliveCells, cellsToCheck[i]) {
-			neighbours++
-		}
+	if cell.x > 0 && (Contains(aliveCells, Cell{x: cell.x - 1, y: cell.y})) {
+		neighbours++
+	}
+	if cell.x > 0 && (Contains(aliveCells, Cell{x: cell.x - 1, y: cell.y + 1})) {
+		neighbours++
+	}
+	if cell.x > 0 && (Contains(aliveCells, Cell{x: cell.x + 1, y: cell.y - 1})) {
+		neighbours++
+	}
+	if cell.x > 0 && (Contains(aliveCells, Cell{x: cell.x + 1, y: cell.y})) {
+		neighbours++
+	}
+	if cell.x > 0 && (Contains(aliveCells, Cell{x: cell.x + 1, y: cell.y + 1})) {
+		neighbours++
+	}
+	if cell.x > 0 && (Contains(aliveCells, Cell{x: cell.x, y: cell.y - 1})) {
+		neighbours++
+	}
+	if cell.x > 0 && (Contains(aliveCells, Cell{x: cell.x, y: cell.y + 1})) {
+		neighbours++
 	}
 	if neighbours == 3 {
 		return true
@@ -55,9 +61,9 @@ func hasCorrectNeighbours(aliveCells []Cell, cell Cell) bool {
 }
 
 func main() {
-	flag.Parse()
+
 	start := true
-	ticker := time.Tick(time.Duration(*speed) * time.Millisecond)
+	ticker := time.Tick(200 * time.Millisecond)
 	for _ = range ticker {
 		newAliveCells := []Cell{}
 		fmt.Printf("\033[0;0H")
