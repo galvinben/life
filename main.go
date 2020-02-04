@@ -1,18 +1,18 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"os"
+	"strings"
 	"time"
 )
 
 var speed = flag.Int("speed", 300, "speed to run in milliseconds")
+var seed = flag.String("seed", "seed", "speed to run in milliseconds")
 
-// glider
-// var aliveCells = []Cell{{x: 18, y: 18}, {x: 18, y: 19}, {x: 18, y: 20}, {x: 17, y: 20}, {x: 16, y: 19}}
-
-// random
-var aliveCells = []Cell{{x: 18, y: 18}, {x: 18, y: 19}, {x: 17, y: 18}, {x: 16, y: 18}, {x: 16, y: 19}, {x: 18, y: 20}, {x: 17, y: 18}}
+var aliveCells []Cell
 
 type Cell struct {
 	x, y int
@@ -56,14 +56,15 @@ func hasCorrectNeighbours(aliveCells []Cell, cell Cell) bool {
 
 func main() {
 	flag.Parse()
+	height, width := getStartCellsFromSeed()
 	start := true
 	ticker := time.Tick(time.Duration(*speed) * time.Millisecond)
 	for _ = range ticker {
 		newAliveCells := []Cell{}
 		fmt.Printf("\033[0;0H")
-		for l := 0; l <= 50; l++ {
+		for l := 0; l <= width; l++ {
 			line := ""
-			for c := 0; c <= 50; c++ {
+			for c := 0; c <= height; c++ {
 				cell := Cell{
 					x: l,
 					y: c,
@@ -81,6 +82,32 @@ func main() {
 		aliveCells = newAliveCells
 		start = false
 	}
+}
+
+func getDataFromFile(fileName string) []string {
+	f, _ := os.Open(fileName)
+	scanner := bufio.NewScanner(f)
+	result := []string{}
+	for scanner.Scan() {
+		line := scanner.Text()
+		result = append(result, line)
+	}
+	return result
+}
+
+func getStartCellsFromSeed() (int, int) {
+	seedData := getDataFromFile(*seed)
+	height := len(seedData)
+	width := len(strings.Replace(seedData[0], " ", "", -1))
+	for lineKey := 0; lineKey < len(seedData); lineKey++ {
+		line := strings.Replace(seedData[lineKey], " ", "", -1)
+		for char := 0; char < len(line); char++ {
+			if line[char] == '0' {
+				aliveCells = append(aliveCells, Cell{x: lineKey + 1, y: char + 1})
+			}
+		}
+	}
+	return height, width
 }
 
 func Contains(a []Cell, x Cell) bool {
